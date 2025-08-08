@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 from openpyxl import load_workbook
+import re
 
 # Open the existing Excel file
 name = 'tm6sf2_missense.xlsx'
@@ -37,11 +38,31 @@ for idx, cell in enumerate(worksheet['A'], start=1):
                     first_missense_change = cells[2].get_text(strip=True)
                     break  # Stop after finding the first Missense Variant
 
-        # If we found a Missense Variant, write it into column B of the same row
+        # If we found a Missense Variant, write it into column B-D and process E-G
         if first_missense_change:
             worksheet[f'B{idx}'] = m_type
             worksheet[f'C{idx}'] = first_missense_change_location
             worksheet[f'D{idx}'] = first_missense_change
+
+            # Column E: extract last part after ':' (e.g., Met1Arg)
+            match = re.search(r'p\.([A-Za-z]+\d+[A-Za-z]+)', first_missense_change_location)
+            if match:
+                aa_change = match.group(1)
+                worksheet[f'E{idx}'] = aa_change
+
+                # Column F: extract number from Met1Arg
+                number_match = re.search(r'\d+', aa_change)
+                if number_match:
+                    worksheet[f'F{idx}'] = number_match.group()
+
+                # Column G: build M1R from D and number
+                d_col_value = worksheet[f'D{idx}'].value  # e.g., "M (Met) > R (Arg)"
+                compact_match = re.match(r'([A-Z]) \(.*\) > ([A-Z]) \(.*\)', d_col_value)
+                if compact_match and number_match:
+                    from_aa = compact_match.group(1)
+                    to_aa = compact_match.group(2)
+                    num = number_match.group()
+                    worksheet[f'G{idx}'] = f"{from_aa}{num}{to_aa}"
         else:
             worksheet[f'B{idx}'] = 'No Missense Variant Found'
 
