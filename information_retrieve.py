@@ -1,16 +1,20 @@
+#@title **Retrieve SNP Information from NCBI**
+#@markdown #<font color='orange'>**1**
 import requests
 import pandas as pd
+import time
 
-# Base API endpoint
-filename = "tm6sf2" #@param {type:"string"}
-excel_path = f"{filename}_snp_informations.xlsx" 
+# ====== CONFIGURATION ======
+filename = "tm6sf2"  #@param {type:"string"}
+excel_path = f"{filename}_snp_informations.xlsx"
 base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 
-# Query filters and their human-readable labels
+# ====== FILTER QUERIES ======
+# Using valid NCBI SNP field names
 filters = {
     "All": f"{filename}[All Fields]",
-    "3 prime UTR variant": f'{filename}[gene] AND "3 prime UTR variant"[Function Class]',
-    "5 prime UTR variant": f'{filename}[gene] AND "5 prime UTR variant"[Function Class]',
+    "3 prime UTR variant": f'{filename}[Gene] AND "3 prime UTR variant"[Function_Class]',
+    "5 prime UTR variant": f'{filename}[Gene] AND "5 prime UTR variant"[Function_Class]',
     "missense variant": f'{filename}[All Fields] AND missense variant[Function_Class]',
     "synonymous": f'{filename}[All Fields] AND synonymous variant[Function_Class]',
     "intron": f'{filename}[All Fields] AND intron variant[Function_Class]',
@@ -20,22 +24,44 @@ filters = {
 
 results = []
 
-# Query the API for each filter
+# ====== QUERY NCBI ======
 for label, term in filters.items():
+    time.sleep(3)
     response = requests.get(base_url, params={
         "db": "snp",
         "term": term,
         "retmode": "json"
     })
-    data = response.json()
-    count = int(data['esearchresult']['count'])
+
+    try:
+        data = response.json()
+    except Exception:
+        print(f"[{label}] Invalid JSON response:")
+        print(response.text)
+        results.append((label, 0))
+        continue
+
+    count = int(data.get("esearchresult", {}).get("count", 0))
+
+    # Debug info if API did not return expected structure
+    if "esearchresult" not in data:
+        print(f"[{label}] Missing 'esearchresult' in response:")
+        print(response.text)
+
     results.append((label, count))
 
-# Calculate percentage with respect to "All"
-total_all = dict(results)["All"]
+# ====== PROCESS RESULTS ======
+total_all = dict(results).get("All", 0)
 df = pd.DataFrame(results, columns=["Category", "Count"])
-df["Percentage"] = df["Count"] / total_all * 100
-df["Percentage"] = df["Percentage"].map(lambda x: f"{x:.3f}%")
 
-# Save to Excel
+if total_all > 0:
+    df["Percentage"] = df["Count"] / total_all * 100
+    df["Percentage"] = df["Percentage"].map(lambda x: f"{x:.3f}%")
+else:
+    df["Percentage"] = "0.000%"
+
+# ====== SAVE TO EXCEL ======
 df.to_excel(excel_path, index=False)
+
+print(f"✅ Data saved to {excel_path}")
+print(df)

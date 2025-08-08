@@ -28,5 +28,5 @@ sheet = workbook.active
 for rs_id in rs_values:
     sheet.append([rs_id])
 
-workbook.save(f"{filename}.xlsx")
+workbook.save(f"{filename}_missense.xlsx")
 print(f"Done. Saved {len(rs_values)} rs IDs to {filename}.xlsx")
