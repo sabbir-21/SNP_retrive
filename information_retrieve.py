@@ -2,19 +2,20 @@ import requests
 import pandas as pd
 
 # Base API endpoint
-excel_path = "tm6sf2_snp_filters.xlsx"
+filename = "tm6sf2" #@param {type:"string"}
+excel_path = f"{filename}_snp_informations.xlsx" 
 base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 
 # Query filters and their human-readable labels
 filters = {
-    "All": "tm6sf2[All Fields]",
-    "3 prime UTR variant": 'tm6sf2[gene] AND "3 prime UTR variant"[Function Class]',
-    "5 prime UTR variant": 'tm6sf2[gene] AND "5 prime UTR variant"[Function Class]',
-    "missense variant": 'tm6sf2[All Fields] AND missense variant[Function_Class]',
-    "synonymous": 'tm6sf2[All Fields] AND synonymous variant[Function_Class]',
-    "intron": 'tm6sf2[All Fields] AND intron variant[Function_Class]',
-    "snp_somatic": 'tm6sf2[All Fields] AND snp_snp_somatic[sb]',
-    "Somatic + Missense": 'tm6sf2[All Fields] AND (missense variant[Function_Class] AND snp_snp_somatic[sb])'
+    "All": f"{filename}[All Fields]",
+    "3 prime UTR variant": f'{filename}[gene] AND "3 prime UTR variant"[Function Class]',
+    "5 prime UTR variant": f'{filename}[gene] AND "5 prime UTR variant"[Function Class]',
+    "missense variant": f'{filename}[All Fields] AND missense variant[Function_Class]',
+    "synonymous": f'{filename}[All Fields] AND synonymous variant[Function_Class]',
+    "intron": f'{filename}[All Fields] AND intron variant[Function_Class]',
+    "snp_somatic": f'{filename}[All Fields] AND snp_snp_somatic[sb]',
+    "Somatic + Missense": f'{filename}[All Fields] AND (missense variant[Function_Class] AND snp_snp_somatic[sb])'
 }
 
 results = []
@@ -38,4 +39,3 @@ df["Percentage"] = df["Percentage"].map(lambda x: f"{x:.3f}%")
 
 # Save to Excel
 df.to_excel(excel_path, index=False)
-

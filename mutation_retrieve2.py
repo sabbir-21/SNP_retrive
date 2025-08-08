@@ -4,7 +4,8 @@ from openpyxl import load_workbook
 import re
 
 # Open the existing Excel file
-name = 'tm6sf2_missense.xlsx'
+filename = "tm6sf2" #@param {type:"string"}
+name = f'{filename}_missense.xlsx'
 with open(name, 'rb') as tf:
     workbook = load_workbook(tf)
 worksheet = workbook['Sheet']

@@ -1,13 +1,13 @@
 import requests
 from openpyxl import Workbook
 
-filename = "tm6sf2_missense"  # output Excel filename without extension
+filename = "tm6sf2" #@param {type:"string"} # output Excel filename without extension
 
 # API URL and parameters
 url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 params = {
     "db": "snp",
-    "term": "tm6sf2[All Fields] AND missense variant[Function_Class]",
+    "term": f"{filename}[All Fields] AND missense variant[Function_Class]",
     "retmax": 1000,
     "retmode": "json"
 }
