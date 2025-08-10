@@ -4,7 +4,13 @@ import sys
 
 # Python 2.7 compatible script
 # Assuming openpyxl is installed: pip install openpyxl==2.5.14 for Python 2.7 support
+'''
+Example excel:
 
+D           E       F
+Position    New     DDG
+12          V       0.87
+'''
 excel_file = 'result.xlsx'  # D- Position, E- New 
 
 # Load the workbook
