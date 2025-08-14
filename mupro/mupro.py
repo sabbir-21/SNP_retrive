@@ -18,7 +18,7 @@ sequence = "MDIPPLAGKIAALSLSALPVSYALNHVSALSHPLWVALMSALILGLLFVAVYSLSHGEVSYDPLYAVF
 
 # Path to MUpro installation and Excel file
 mupro_dir = "."  # Current directory
-excel_file = "result.xlsx"
+excel_file = "mupro.xlsx"
 predict_script = os.path.join(mupro_dir, "bin", "predict_regr.sh")
 
 # Function to parse mutation (e.g., 'M1R' → (1, 'M', 'R'))

@@ -26,7 +26,7 @@ results = []
 
 # ====== QUERY NCBI ======
 for label, term in filters.items():
-    time.sleep(3)
+    time.sleep(5)
     response = requests.get(base_url, params={
         "db": "snp",
         "term": term,

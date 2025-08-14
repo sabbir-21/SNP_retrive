@@ -11,7 +11,7 @@ D           E       F
 Position    New     DDG
 12          V       0.87
 '''
-excel_file = 'result.xlsx'  # D- Position, E- New 
+excel_file = 'imutant.xlsx'  # D- Position, E- New 
 
 # Load the workbook
 wb = openpyxl.load_workbook(excel_file)
