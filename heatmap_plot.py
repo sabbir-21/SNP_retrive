@@ -5,18 +5,22 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import Rectangle
 import matplotlib.colors as mcolors
+from sklearn.preprocessing import StandardScaler
 
 # Load your Excel file
 df = pd.read_excel("heatmap.xlsx")
 
 # Drop non-numeric columns (Rs ID, etc.)
-numeric_df = df.drop(columns=["Rs ID"])
+numeric_df = df.drop(columns=["Rs ID"], errors="ignore")
 
-# Pearson correlation matrix
-corr = numeric_df.corr(method="pearson")
+scaler = StandardScaler()
+scaled_df = pd.DataFrame(scaler.fit_transform(numeric_df), columns=numeric_df.columns)
+# Pearson correlation matrix #spearman
+numeric_df = numeric_df.loc[:, numeric_df.std() > 0.01]
+corr = scaled_df.corr(method="pearson")
 
 # 3. Mask upper triangle
-mask = np.triu(np.ones_like(corr, dtype=bool))
+mask = np.triu(np.ones_like(corr, dtype=bool),k=1)
 
 # 4. Reverse columns only (mirror horizontally)
 corr_matrix = corr.iloc[:, ::-1]
