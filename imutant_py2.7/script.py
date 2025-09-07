@@ -1,9 +1,3 @@
-import openpyxl
-import subprocess
-import sys
-
-# Python 2.7 compatible script
-# Assuming openpyxl is installed: pip install openpyxl==2.5.14 for Python 2.7 support
 '''
 Example excel:
 
@@ -11,11 +5,23 @@ D           E       F
 Position    New     DDG
 12          V       0.87
 '''
-excel_file = 'imutant.xlsx'  # D- Position, E- New 
 
+##############################
+import openpyxl
+import subprocess
+import sys
+
+# Python 2.7 compatible script
+# Assuming openpyxl is installed: pip install openpyxl==2.5.14 for Python 2.7 support
+
+# Excel file name - change if needed
+excel_file = 'ApoE_missense.xlsx'  # Replace with your actual file name
+position=7 # Column Position
+mutant=9 # Column Mutant
+saving_col=32 # Column Saving
 # Load the workbook
 wb = openpyxl.load_workbook(excel_file)
-sheet = wb['imutant']
+sheet = wb['raw_filtered']
 
 # Find the total number of rows with data (assuming header in row 1, data from row 2)
 max_row = sheet.max_row
@@ -26,8 +32,8 @@ done = 0
 
 # Loop through rows starting from 2
 for row in range(1, max_row + 1):
-    pos_cell = sheet.cell(row=row, column=4)  # Column D (4)
-    new_res_cell = sheet.cell(row=row, column=5)  # Column E (5)
+    pos_cell = sheet.cell(row=row, column=position)  # Column Position (4)
+    new_res_cell = sheet.cell(row=row, column=mutant)  # Column Mutant (5)
     
     pos = pos_cell.value
     new_res = new_res_cell.value
@@ -63,7 +69,7 @@ for row in range(1, max_row + 1):
         
         if ddg is not None:
             # Write to column F (6)
-            sheet.cell(row=row, column=6).value = float(ddg)
+            sheet.cell(row=row, column=saving_col).value = float(ddg)
             
             # Increment done
             done += 1
