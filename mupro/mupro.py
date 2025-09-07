@@ -5,8 +5,6 @@ import tempfile
 import openpyxl
 
 '''
-./configure.pl
-
 Example excel: KEEP HEADER IN EXCEL
 A        B
 M1T      -1.886
@@ -14,11 +12,14 @@ M1T      -1.886
 '''
 
 # Protein sequence
-sequence = "MDIPPLAGKIAALSLSALPVSYALNHVSALSHPLWVALMSALILGLLFVAVYSLSHGEVSYDPLYAVFAVFAFTSVVDLIIALQEDSYVVGFMEFYTKEGEPYLRTAHGVFICYWDGTVHYLLYLAMAGAICRRKRYRNFGLYWLGSFAMSILVFLTGNILGKYSSEIRPAFFLTIPYLLVPCWAGMKVFSQPRALTRCTANMVQEEQRKGLLQRPADLALVIYLILAGFFTLFRGLVVLDCPTDACFVYIYQYEPYLRDPVAYPKVQMLMYMFYVLPFCGLAAYALTFPGCSWLPDWALVFAGGIGQAQFSHMGASMHLRTPFTYRVPEDTWGCFFVCNLLYALGPHLLAYRCLQWPAFFHQPPPSDPLALHKKQH"
+sequence = "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWELALGRFWDYLRWVQTLSEQVQEELLSSQVTQELRALMDETMKELKAYKSELEEQLTPVAEETRARLSKELQAAQARLGADMEDVCGRLVQYRGEVQAMLGQSTEELRVRLASHLRKLRKRLLRDADDLQKRLAVYQAGAREGAERGLSAIRERLGPLVEQGRVRAATVGSLAGQPLQERAQAWGERLRARMEEMGSRTRDRLDEVKEQVAEVRAKLEEQAQQIRLQAEAFQARLKSWFEPLVEDMQRQWAGLVEKVQAAVGTSAAPVPSDNH"
 
 # Path to MUpro installation and Excel file
 mupro_dir = "."  # Current directory
-excel_file = "mupro.xlsx"
+excel_file = "ApoE_missense.xlsx"
+short_form=6
+saving_col=33
+sheet_name="raw_filtered"
 predict_script = os.path.join(mupro_dir, "bin", "predict_regr.sh")
 
 # Function to parse mutation (e.g., 'M1R' → (1, 'M', 'R'))
@@ -76,10 +77,10 @@ def main():
     # Load Excel file
     try:
         wb = openpyxl.load_workbook(excel_file)
-        if 'MuPro' not in wb.sheetnames:
-            print("Error: Sheet 'imutant' not found in Excel file")
+        if sheet_name not in wb.sheetnames:
+            print("Error: Sheetname not found in Excel file")
             return
-        sheet = wb['MuPro']
+        sheet = wb[sheet_name]
     except Exception as e:
         print(f"Error loading Excel file: {str(e)}")
         return
@@ -87,7 +88,7 @@ def main():
     # Read mutations from column A and store results
     results = []
     b=0
-    for row in sheet.iter_rows(min_row=2, min_col=1, max_col=1, values_only=True):
+    for row in sheet.iter_rows(min_row=2, min_col=short_form, max_col=short_form, values_only=True):
         b+=1
         print(b)
         mutation_str = row[0]
@@ -111,7 +112,7 @@ def main():
     for idx, (mutation_str, ddg) in enumerate(results, start=2):
         a+=1
         print(a)
-        sheet.cell(row=idx, column=2).value = ddg
+        sheet.cell(row=idx, column=saving_col).value = ddg
     
     # Save Excel file
         wb.save(excel_file)
