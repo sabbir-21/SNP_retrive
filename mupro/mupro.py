@@ -108,6 +108,7 @@ def main():
             results.append((mutation_str, f"Error: {str(e)}"))
     
     # Write results to column H (8th column)
+    sheet.cell(row=1, column=saving_col).value = "Mupro"
     a=0
     for idx, (mutation_str, ddg) in enumerate(results, start=2):
         a+=1
