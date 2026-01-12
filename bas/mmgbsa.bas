@@ -7,25 +7,26 @@ Sub Create_Thermal_MMGBSA_Chart_With_Textboxes()
     Dim s As Series
     Dim shp As Shape
     Dim i As Long
+    Dim lastRow As Long, lastCol As Long
     
     Set ws = ThisWorkbook.Sheets("Sheet1")
-    'Set rng = ws.Range("A1:H4")
-	Dim lastRow As Long, lastCol As Long
-	lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
-	lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
-	Set rng = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol))
     
-    ' Delete old charts
+    ' -------- DYNAMIC DATA RANGE --------
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    Set rng = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol))
+    
+    ' -------- DELETE OLD CHARTS --------
     For Each co In ws.ChartObjects
         co.Delete
     Next co
     
-    ' Delete old MMGBSA textboxes
+    ' -------- DELETE OLD TEXTBOXES --------
     For Each shp In ws.Shapes
         If shp.Name Like "MMGBSA_Label_*" Then shp.Delete
     Next shp
     
-    ' Create chart
+    ' -------- CREATE CHART --------
     Set co = ws.ChartObjects.Add(Left:=350, Top:=20, Width:=700, Height:=400)
     Set cht = co.Chart
     
@@ -33,7 +34,7 @@ Sub Create_Thermal_MMGBSA_Chart_With_Textboxes()
         .SetSourceData Source:=rng
         .ChartType = xlBarClustered
         
-        ' Title
+        ' ----- TITLE -----
         .HasTitle = True
         .ChartTitle.Text = "Thermal MMGBSA"
         With .ChartTitle.Font
@@ -42,19 +43,19 @@ Sub Create_Thermal_MMGBSA_Chart_With_Textboxes()
             .Bold = True
         End With
         
-        ' Legend
+        ' ----- LEGEND -----
         .HasLegend = True
         .Legend.Position = xlLegendPositionTop
         .Legend.Font.Name = "Times New Roman"
         
-        ' REMOVE category axis (Y)
+        ' ----- REMOVE CATEGORY AXIS -----
         With .Axes(xlCategory)
             .TickLabelPosition = xlNone
             .HasTitle = False
             .Format.Line.Visible = msoFalse
         End With
         
-        ' Value axis (X)
+        ' ----- VALUE AXIS -----
         With .Axes(xlValue)
             .HasTitle = True
             .AxisTitle.Text = "Average Energy (kcal/mol)"
@@ -67,7 +68,7 @@ Sub Create_Thermal_MMGBSA_Chart_With_Textboxes()
             .HasMajorGridlines = False
         End With
         
-        ' Data labels inside bars (2 decimals)
+        ' ----- DATA LABELS -----
         For Each s In .SeriesCollection
             s.HasDataLabels = True
             With s.DataLabels
@@ -85,18 +86,19 @@ Sub Create_Thermal_MMGBSA_Chart_With_Textboxes()
     ' -------- ADD MMGBSA TERM TEXTBOXES --------
     
     Dim terms As Range
-    Set terms = ws.Range("B1:H1")
+    Set terms = ws.Range(ws.Cells(1, 2), ws.Cells(1, lastCol))   ' B1 → lastCol
     
     Dim plotTop As Double, plotHeight As Double
     plotTop = co.Top + cht.PlotArea.Top
     plotHeight = cht.PlotArea.Height
     
+    ' IMPORTANT: reverse vertical placement to match bar order
     For i = 1 To terms.Columns.Count
         
         Set shp = ws.Shapes.AddTextbox( _
             Orientation:=msoTextOrientationHorizontal, _
             Left:=co.Left - 170, _
-            Top:=plotTop + (plotHeight / terms.Columns.Count) * (i - 0.5), _
+            Top:=plotTop + (plotHeight / terms.Columns.Count) * (terms.Columns.Count - i + 0.5), _
             Width:=170, _
             Height:=18 _
         )
